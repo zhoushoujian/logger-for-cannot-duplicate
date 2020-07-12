@@ -8,7 +8,7 @@ Log useful info to indexedDB to send to server for analysis
 
 # Usage
 ```js
-import Logger from "./loggerForCannotDuplicate"
+import Logger from "loggerForCannotDuplicate"
 
 // support more one instances
 const logger1 = new Logger({
