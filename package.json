@@ -1,0 +1,28 @@
+{
+  "name": "logger-for-cannot-duplicate",
+  "description": "A light logger system for browser for the case which can not duplicate but sometimes happened.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "shoujian",
+  "dependencies": {},
+  "scripts": {
+    "eslint": "eslint *.js"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run eslint"
+    }
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.6.0",
+    "eslint-plugin-babel": "^5.3.0",
+    "husky": "^1.1.2"
+  },
+  "keywords": [
+    "logger",
+    "browser",
+    "reproduce",
+    "duplicate"
+  ]
+}
