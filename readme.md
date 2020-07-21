@@ -27,7 +27,7 @@ logger1.read()  //read logs in that indexDB collection
   .then(result => {
     console.log("result", result)
     logger1.remove()  //remove that indexDB collection
-    logger1.send(result)  //send log infos to server
+    logger1.send(result, "myId")  //send log infos to server, 加上id方便在数据库里检索出自己想要的信息
   })
 logger2.add(123456)
 logger2.add([1, 2, 3, 4, 5, 6])

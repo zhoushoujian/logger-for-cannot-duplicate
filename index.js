@@ -19,8 +19,8 @@ function LoggerForCannotDuplicate(config = {}) {
   if (Object.prototype.toString.call(config) === '[object Object]') {
     this.userConfig = config
     this.userConfig.collectionName = (typeof (this.userConfig.collectionName) === 'string' ? this.userConfig.collectionName : "default")
-    this.userConfig.serverAddr = (typeof (this.userConfig.serverAddr) === 'string' ? this.userConfig.serverAddr : "https://api.zhoushoujian.com/user_activity")
-    if (this.userConfig.serverAddr === "https://api.zhoushoujian.com/user_activity") {
+    this.userConfig.serverAddr = (typeof (this.userConfig.serverAddr) === 'string' ? this.userConfig.serverAddr : "https://api.zhoushoujian.com/error_log")
+    if (this.userConfig.serverAddr === "https://api.zhoushoujian.com/error_log") {
       console.warn("server addr is not config, will use mock addr instead!")
     }
     const collection = this.userConfig.collectionName
@@ -117,7 +117,7 @@ function LoggerForCannotDuplicate(config = {}) {
       })
     }
 
-    this.send = function (loggerContents) {
+    this.send = function (loggerContents, objectID) {
       function sendFunc(loggerContents, res) {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', self.userConfig.serverAddr, true);
@@ -129,7 +129,10 @@ function LoggerForCannotDuplicate(config = {}) {
             res("send_fail")
           }
         };
-        const obj = { loggerContents }
+        let obj = { loggerContents }
+        if(objectID) {
+          obj = { objectID: loggerContents }
+        }
         xhr.send(JSON.stringify(obj));
       }
 
