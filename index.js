@@ -1,29 +1,29 @@
 function LoggerForCannotDuplicate(config = {}) {
-  const self = this
-  this.db = null
-  this.preQueue = []
-  this.runVersionChange = false
+  const self = this;
+  this.db = null;
+  this.preQueue = [];
+  this.runVersionChange = false;
 
   function dealPreviousData() {
     if (self.preQueue.length) {
       return self[self.preQueue[0].name](self.preQueue[0].loggerContent)
         .then(function () {
-          self.preQueue.shift()
+          self.preQueue.shift();
           if (self.preQueue.length) {
-            return dealPreviousData()
+            return dealPreviousData();
           }
-        })
+        });
     }
   }
 
   if (Object.prototype.toString.call(config) === '[object Object]') {
-    this.userConfig = config
-    this.userConfig.collectionName = (typeof (this.userConfig.collectionName) === 'string' ? this.userConfig.collectionName : "default")
-    this.userConfig.serverAddr = (typeof (this.userConfig.serverAddr) === 'string' ? this.userConfig.serverAddr : "https://api.zhoushoujian.com/error_log")
+    this.userConfig = config;
+    this.userConfig.collectionName = (typeof (this.userConfig.collectionName) === 'string' ? this.userConfig.collectionName : "default");
+    this.userConfig.serverAddr = (typeof (this.userConfig.serverAddr) === 'string' ? this.userConfig.serverAddr : "https://api.zhoushoujian.com/error_log");
     if (this.userConfig.serverAddr === "https://api.zhoushoujian.com/error_log") {
-      console.warn("server addr is not config, will use mock addr instead!")
+      console.warn("server addr is not config, will use mock addr instead!");
     }
-    const collection = this.userConfig.collectionName
+    const collection = this.userConfig.collectionName;
     const request = indexedDB.open(collection, 1);
     request.onerror = function (_event) {
       console.error('loggerForCannotDuplicate: 数据库打开报错');
@@ -32,90 +32,90 @@ function LoggerForCannotDuplicate(config = {}) {
       self.db = request.result;
       setTimeout(function () {
         if (!self.runVersionChange) {
-          dealPreviousData()
+          dealPreviousData();
         }
-      }, 50)
+      }, 50);
     };
     request.onupgradeneeded = function (event) {
-      self.runVersionChange = true
+      self.runVersionChange = true;
       self.db = event.target.result;
       self.db.createObjectStore('collection', { keyPath: 'key' });
       setTimeout(function () {
-        dealPreviousData()
-      }, 10)
-    }
+        dealPreviousData();
+      }, 10);
+    };
 
     this.add = function (loggerContent) {
       if (!self.db) {
         self.preQueue.push({
           name: 'add',
           loggerContent
-        })
-        return Promise.resolve('pending')
+        });
+        return Promise.resolve('pending');
       }
       loggerContent = {
         key: `${new Date().formatTime("yyyy-MM-dd hh:mm:ss:S")}-${String(Math.random()).slice(-4)}`,
         content: loggerContent
-      }
+      };
       return new Promise(function (resolve) {
         const request = self.db.transaction(['collection'], 'readwrite')
           .objectStore('collection')
           .add(loggerContent);
         request.onsuccess = function (_event) {
-          resolve(loggerContent)
+          resolve(loggerContent);
         };
         request.onerror = function (event) {
-          resolve(event)
+          resolve(event);
           console.warn('loggerForCannotDuplicate: 数据写入失败');
-        }
-      })
-    }
+        };
+      });
+    };
 
     this.read = function () {
       if (!self.db) {
         self.preQueue.push({
           name: 'read'
-        })
-        return Promise.resolve('pending')
+        });
+        return Promise.resolve('pending');
       }
-      const result = []
+      const result = [];
       return new Promise(function (resolve) {
         const objectStore = self.db.transaction('collection').objectStore('collection');
         objectStore.openCursor().onsuccess = function (event) {
           const cursor = event.target.result;
           if (cursor) {
-            result.push(cursor.value)
+            result.push(cursor.value);
             cursor.continue();
           } else {
-            resolve(result)
+            resolve(result);
           }
         };
-      })
-    }
+      });
+    };
 
     this.remove = function () {
       if (!self.db) {
         self.preQueue.push({
           name: 'remove'
-        })
-        return Promise.resolve('pending')
+        });
+        return Promise.resolve('pending');
       }
       return new Promise(function (resolve) {
         self.db.close();
         const req = indexedDB.deleteDatabase(collection);
         req.onsuccess = function () {
-          resolve("success")
+          resolve("success");
         };
         req.onerror = function () {
           console.log("Couldn't delete database");
-          resolve("fail")
+          resolve("fail");
         };
         req.onblocked = function () {
           // console.warn("Couldn't delete database due to the operation being blocked");
-          resolve("blocked")
+          resolve("blocked");
         };
-      })
-    }
+      });
+    };
 
     this.send = function (loggerContents, objectID) {
       function sendFunc(loggerContents, res) {
@@ -124,14 +124,14 @@ function LoggerForCannotDuplicate(config = {}) {
         xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         xhr.onreadystatechange = function () {
           if (xhr.readyState === 4 && xhr.status === 200) {
-            res(xhr.responseText)
+            res(xhr.responseText);
           } else {
-            res("send_fail")
+            res("send_fail");
           }
         };
-        let obj = { loggerContents }
+        let obj = { loggerContents };
         if(objectID) {
-          obj = { objectID: loggerContents }
+          obj = { objectID: loggerContents };
         }
         xhr.send(JSON.stringify(obj));
       }
@@ -140,16 +140,16 @@ function LoggerForCannotDuplicate(config = {}) {
         if (!loggerContents) {
           self.read()
             .then((contents) => {
-              sendFunc(contents, res)
-            })
+              sendFunc(contents, res);
+            });
         } else {
-          sendFunc(loggerContents, res)
+          sendFunc(loggerContents, res);
         }
-      })
-    }
+      });
+    };
 
   } else {
-    throw new Error("loggerForCannotDuplicate: config must be an object or empty")
+    throw new Error("loggerForCannotDuplicate: config must be an object or empty");
   }
 }
 
@@ -172,7 +172,7 @@ Date.prototype.formatTime = function (fmt) {
     }
   }
   return fmt;
-}
+};
 
 
-export default LoggerForCannotDuplicate
+export default LoggerForCannotDuplicate;
