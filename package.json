@@ -1,10 +1,10 @@
 {
   "name": "logger-for-cannot-duplicate",
   "description": "A light logger system for browser for the case which can not duplicate but sometimes happened.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "license": "MIT",
   "author": "shoujian",
-  "main": "index.js",
+  "main": "index.min.js",
   "dependencies": {},
   "scripts": {
     "eslint": "eslint *.js"

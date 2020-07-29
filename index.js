@@ -1,5 +1,15 @@
-function LoggerForCannotDuplicate(config = {}) {
-  const self = this;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function LoggerForCannotDuplicate(config) {
+  if(!config) {
+    config = {};
+  }
+  var self = this;
   this.db = null;
   this.preQueue = [];
   this.runVersionChange = false;
@@ -23,8 +33,8 @@ function LoggerForCannotDuplicate(config = {}) {
     if (this.userConfig.serverAddr === "https://api.zhoushoujian.com/error_log") {
       console.warn("server addr is not config, will use mock addr instead!");
     }
-    const collection = this.userConfig.collectionName;
-    const request = indexedDB.open(collection, 1);
+    var collection = this.userConfig.collectionName;
+    var request = indexedDB.open(collection, 1);
     request.onerror = function (_event) {
       console.error('loggerForCannotDuplicate: 数据库打开报错');
     };
@@ -49,16 +59,16 @@ function LoggerForCannotDuplicate(config = {}) {
       if (!self.db) {
         self.preQueue.push({
           name: 'add',
-          loggerContent
+          loggerContent: loggerContent
         });
         return Promise.resolve('pending');
       }
       loggerContent = {
-        key: `${new Date().formatTime("yyyy-MM-dd hh:mm:ss:S")}-${String(Math.random()).slice(-4)}`,
+        key: new Date().formatTime("yyyy-MM-dd hh:mm:ss:S") + "-" + String(Math.random()).slice(-4),
         content: loggerContent
       };
       return new Promise(function (resolve) {
-        const request = self.db.transaction(['collection'], 'readwrite')
+        var request = self.db.transaction(['collection'], 'readwrite')
           .objectStore('collection')
           .add(loggerContent);
         request.onsuccess = function (_event) {
@@ -78,11 +88,11 @@ function LoggerForCannotDuplicate(config = {}) {
         });
         return Promise.resolve('pending');
       }
-      const result = [];
+      var result = [];
       return new Promise(function (resolve) {
-        const objectStore = self.db.transaction('collection').objectStore('collection');
+        var objectStore = self.db.transaction('collection').objectStore('collection');
         objectStore.openCursor().onsuccess = function (event) {
-          const cursor = event.target.result;
+          var cursor = event.target.result;
           if (cursor) {
             result.push(cursor.value);
             cursor.continue();
@@ -102,7 +112,7 @@ function LoggerForCannotDuplicate(config = {}) {
       }
       return new Promise(function (resolve) {
         self.db.close();
-        const req = indexedDB.deleteDatabase(collection);
+        var req = indexedDB.deleteDatabase(collection);
         req.onsuccess = function () {
           resolve("success");
         };
@@ -119,7 +129,7 @@ function LoggerForCannotDuplicate(config = {}) {
 
     this.send = function (loggerContents, objectID) {
       function sendFunc(loggerContents, res) {
-        const xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest();
         xhr.open('POST', self.userConfig.serverAddr, true);
         xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         xhr.onreadystatechange = function () {
@@ -129,9 +139,11 @@ function LoggerForCannotDuplicate(config = {}) {
             res("send_fail");
           }
         };
-        let obj = { loggerContents };
+        var obj = { loggerContents: loggerContents };
         if(objectID) {
-          obj = { logger: loggerContents, [objectID]: true };
+          obj = _defineProperty({
+            logger: loggerContents
+          }, objectID, true);
         }
         xhr.send(JSON.stringify(obj));
       }
@@ -139,7 +151,7 @@ function LoggerForCannotDuplicate(config = {}) {
       return new Promise(function (res) {
         if (!loggerContents) {
           self.read()
-            .then((contents) => {
+            .then(function (contents) {
               sendFunc(contents, res);
             });
         } else {
@@ -154,7 +166,7 @@ function LoggerForCannotDuplicate(config = {}) {
 }
 
 Date.prototype.formatTime = function (fmt) {
-  const o = {
+  var o = {
     "M+": this.getMonth() + 1, //月份
     "d+": this.getDate(), //日
     "h+": this.getHours(), //小时
@@ -164,15 +176,15 @@ Date.prototype.formatTime = function (fmt) {
     "S": this.getMilliseconds() //毫秒
   };
   if (/(y+)/.test(fmt)) {
-    fmt = fmt.replace(RegExp.$1, (`${this.getFullYear()}`).substr(4 - RegExp.$1.length));
+    fmt = fmt.replace(RegExp.$1, this.getFullYear().substr(4 - RegExp.$1.length));
   }
-  for (const k in o) {
-    if (new RegExp(`(${k})`).test(fmt)) {
-      fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : ((`00${o[k]}`).substr((`${o[k]}`).length)));
+  for (var k in o) {
+    if (new RegExp("(" + k + ")").test(fmt)) {
+      fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (("00" + o[k]).substr(o[k].length)));
     }
   }
   return fmt;
 };
 
 
-export default LoggerForCannotDuplicate;
+exports.default = LoggerForCannotDuplicate;

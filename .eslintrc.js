@@ -108,7 +108,7 @@ module.exports = {
 		"no-unmodified-loop-condition": 2, //禁用一成不变的循环条件
 		"no-useless-call": 2, //禁用不必要的 .call() 和 .apply()
 		"no-useless-concat": 2, //禁止没有必要的字符拼接
-		"vars-on-top": 2, //要求将变量声明放在它们作用域的顶部
+		"vars-on-top": 0, //要求将变量声明放在它们作用域的顶部
 		"wrap-iife": ["error", "any"], //需要把立即执行的函数包裹起来
 		yoda: 2, //要求或者禁止Yoda条件
 		curly: ['error', 'multi-line'],
@@ -129,8 +129,8 @@ module.exports = {
 		"no-duplicate-imports": ["error", { includeExports: true }], //禁止重复导入
 		"no-useless-computed-key": 2, //禁止在对象中使用不必要的计算属性
 		"no-useless-rename": 2, //禁止在 import 和 export 和解构赋值时将引用重命名为相同的名字
-		"no-var": 2, //要求使用 let 或 const 而不是 var
-		"object-shorthand": 2, //要求对象字面量简写语法
+		"no-var": 0, //要求使用 let 或 const 而不是 var
+		"object-shorthand": 0, //要求对象字面量简写语法
 		"prefer-const": ["error", { destructuring: "all" }], //只有解构的值都没有被赋值才用const
 		"prefer-numeric-literals": 2, //禁用 parseInt() 和 Number.parseInt()，使用二进制，八进制和十六进制字面量
 		"prefer-rest-params": 2, //建议使用剩余参数代替 arguments
