@@ -131,7 +131,7 @@ function LoggerForCannotDuplicate(config = {}) {
         };
         let obj = { loggerContents };
         if(objectID) {
-          obj = { objectID: loggerContents };
+          obj = { logger: loggerContents, [objectID]: true };
         }
         xhr.send(JSON.stringify(obj));
       }
