@@ -233,7 +233,7 @@ module.exports = {
 				allowTaggedTemplates: true
 			}
 		],  //禁止未使用过的表达式
-		'no-void': 'error',
+		'no-void': 'off',
 		'prefer-promise-reject-errors': ['error', { allowEmptyReject: true }],  // 要求使用 Error 对象作为 Promise 拒绝的原因
 		'no-await-in-loop': 'error',  //禁止在循环中 出现 await
 		'no-confusing-arrow': [
@@ -281,7 +281,8 @@ module.exports = {
 		],  //禁止使用特定的语法
 		'switch-colon-spacing': ['error', { after: true, before: false }],  //强制在 switch 的冒号左右有空格
 		'template-tag-spacing': ['error', 'never'],  //要求或禁止在模板标记和它们的字面量之间有空格
-		'unicode-bom': ['error', 'never'],  //禁止使用 Unicode 字节顺序标记
+    'unicode-bom': ['error', 'never'],  //禁止使用 Unicode 字节顺序标记
+    'max-len': 0
 	},
 	env: {
 		browser: true,

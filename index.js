@@ -3,10 +3,17 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });
+  } else {
+    obj[key] = value;
+  }
+  return obj;
+}
 
 function LoggerForCannotDuplicate(config) {
-  if(!config) {
+  if (!config) {
     config = {};
   }
   var self = this;
@@ -140,7 +147,7 @@ function LoggerForCannotDuplicate(config) {
           }
         };
         var obj = { loggerContents: loggerContents };
-        if(objectID) {
+        if (objectID) {
           obj = _defineProperty({
             logger: loggerContents
           }, objectID, true);
@@ -176,7 +183,7 @@ Date.prototype.formatTime = function (fmt) {
     "S": this.getMilliseconds() //毫秒
   };
   if (/(y+)/.test(fmt)) {
-    fmt = fmt.replace(RegExp.$1, this.getFullYear().substr(4 - RegExp.$1.length));
+    fmt = fmt.replace(RegExp.$1, String(this.getFullYear()).substr(4 - RegExp.$1.length));
   }
   for (var k in o) {
     if (new RegExp("(" + k + ")").test(fmt)) {
