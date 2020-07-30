@@ -7,7 +7,7 @@
   "main": "index.min.js",
   "dependencies": {},
   "scripts": {
-    "eslint": "eslint *.js"
+    "eslint": "eslint index.js"
   },
   "husky": {
     "hooks": {
@@ -17,7 +17,7 @@
   "devDependencies": {
     "babel-eslint": "^10.1.0",
     "eslint": "^6.6.0",
-    "eslint-config-ts-base": "0.0.2",
+    "eslint-config-ts-base": "0.0.3",
     "eslint-plugin-babel": "^5.3.0",
     "husky": "^1.1.2"
   },
