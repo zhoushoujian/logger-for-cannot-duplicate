@@ -36,9 +36,9 @@ function LoggerForCannotDuplicate(config) {
   if (Object.prototype.toString.call(config) === '[object Object]') {
     this.userConfig = config;
     this.userConfig.collectionName = (typeof (this.userConfig.collectionName) === 'string' ? this.userConfig.collectionName : "default");
-    this.userConfig.serverAddr = (typeof (this.userConfig.serverAddr) === 'string' ? this.userConfig.serverAddr : "https://api.zhoushoujian.com/error_log");
-    if (this.userConfig.serverAddr === "https://api.zhoushoujian.com/error_log") {
-      console.warn("server addr is not config, will use mock addr instead!");
+    this.userConfig.serverAddr = (typeof (this.userConfig.serverAddr) === 'string' ? this.userConfig.serverAddr : "");
+    if (this.userConfig.serverAddr === "") {
+      console.warn("server addr is not config!");
     }
     var collection = this.userConfig.collectionName;
     var request = indexedDB.open(collection, 1);
