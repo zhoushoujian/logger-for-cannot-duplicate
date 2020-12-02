@@ -24,6 +24,11 @@
     "eslint-plugin-babel": "^5.3.0",
     "husky": "^1.1.2"
   },
+  "homepage": "https://github.com/zhoushoujian/logger-for-cannot-duplicate",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/zhoushoujian/logger-for-cannot-duplicate"
+	},
   "keywords": [
     "logger",
     "browser",
