@@ -1,12 +1,15 @@
 # LoggerForCannotDuplicate
+
 A light logger system for browser for the case which can not duplicate but sometimes happened.  
 
-# Functions
-```zero dependence```  
-```written with ES5```  
+## Functions
+
+```zero dependence => written with ES5```  
+
 Log useful info to indexedDB to send to server for analysis  
 
-# Usage
+## Usage
+
 ```js
 import Logger from "logger-for-cannot-duplicate"
 
@@ -23,11 +26,11 @@ const logger2 = new Logger({
 //it's better to instance Logger first and then to use.
 logger1.add('123456')  //add one log to indexedDB
 logger1.add(true)
-logger1.read()  //read logs in that indexDB collection
+logger1.read()  //read logs in that indexDB collection， init indexedDb require some time, please wait indexedDB prepare and then call logger mehod
   .then(result => {
     console.log("result", result)
     logger1.remove()  //remove that indexDB collection
-    logger1.send(result, "myId")  //send log infos to server, 加上id方便在数据库里检索出自己想要的信息
+    logger1.send(result, "myId")  //send log infos to server
   })
 logger2.add(123456)
 logger2.add([1, 2, 3, 4, 5, 6])
@@ -38,7 +41,8 @@ logger2.read()
   })
 ```
 
-# Api
+## Api
+
 There are only four apis at present and are easy to use.  
 ```add```
 add one log info to indexedDB to save  
@@ -52,5 +56,6 @@ remove that indexedDB database
 ```send```
 send your log infos to your server  
 
-# License
+## License
+
 [MIT](https://github.com/zhoushoujian/logger-for-cannot-duplicate/blob/master/LICENSE)  
