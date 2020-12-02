@@ -1,16 +1,25 @@
 const shell = require('shelljs');
 
 let cancelChangeNpmConfig = () => {};
+let useTaobaoMirror = false;
 
-function changeNpmConfig() {
+function getNpmConfig() {
+  console.log('获取npm配置信息');
   return executeCmd('npm config get registry', 'changeNpmConfig');
 }
 
+function changeNpmConfig() {
+  console.log('正在临时关闭淘宝镜像');
+  return executeCmd('npm config set registry=https://registry.npmjs.org', '暂时关闭淘宝镜像');
+}
+
 function publish() {
-  return executeCmd('npm publish', 'publish');
+  console.log('开始发布');
+  return executeCmd('npm publish --registry http://registry.npmjs.org', 'publish');
 }
 
 function syncTaoBao() {
+  console.log('正在同步淘宝镜像');
   return executeCmd(
     'curl -X PUT https://npm.taobao.org/sync/logger-for-cannot-duplicate',
     'syncTaoBao'
@@ -23,8 +32,7 @@ function executeCmd(cmd, logInfo) {
     child.stdout.on('data', function (data) {
       console.log(`${logInfo} stdout: `, data);
       if (logInfo === 'changeNpmConfig' && !data.includes('registry.npmjs.org')) {
-        shell.exec('npm config set registry=https://registry.npmjs.org');
-        console.log('暂时关闭淘宝镜像');
+        useTaobaoMirror = true;
         cancelChangeNpmConfig = () => {
           shell.exec('npm config set registry=http://registry.npm.taobao.org/');
           console.log('重新设置淘宝镜像');
@@ -47,7 +55,13 @@ function executeCmd(cmd, logInfo) {
   });
 }
 
-changeNpmConfig()
+getNpmConfig()
+  .then(() => {
+    console.log('使用了淘宝镜像', useTaobaoMirror);
+    if (useTaobaoMirror) {
+      return changeNpmConfig();
+    }
+  })
   .then(publish)
   .then(syncTaoBao)
   .then(() => cancelChangeNpmConfig())
