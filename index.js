@@ -1,48 +1,9 @@
-function _typeof(obj) {
-  "@babel/helpers - typeof";
-  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-    _typeof = function _typeof(obj) {
-      return typeof obj;
-    };
-  } else {
-    _typeof = function _typeof(obj) {
-      return obj &&
-        typeof Symbol === "function" &&
-        obj.constructor === Symbol &&
-        obj !== Symbol.prototype
-        ? "symbol"
-        : typeof obj;
-    };
-  }
-  return _typeof(obj);
-}
-
-Object.defineProperty(exports, "__esModule", {
-  value: true,
-});
-exports.default = void 0;
-
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true,
-    });
-  } else {
-    obj[key] = value;
-  }
-
-  return obj;
-}
-
 function LoggerForCannotDuplicate(config) {
   if (!config) {
     config = {};
   }
 
-  var self = this;
+  const self = this;
   this.db = null;
   this.preQueue = [];
   this.runVersionChange = false;
@@ -52,7 +13,6 @@ function LoggerForCannotDuplicate(config) {
       return self[self.preQueue[0].name](self.preQueue[0].loggerContent).then(
         function () {
           self.preQueue.shift();
-
           if (self.preQueue.length) {
             return dealPreviousData();
           }
@@ -63,6 +23,7 @@ function LoggerForCannotDuplicate(config) {
 
   if (Object.prototype.toString.call(config) === "[object Object]") {
     this.userConfig = config;
+    this.userConfig.isDevEnv = this.userConfig.isDevEnv || false;
     this.userConfig.collectionName =
       typeof this.userConfig.collectionName === "string"
         ? this.userConfig.collectionName
@@ -73,11 +34,11 @@ function LoggerForCannotDuplicate(config) {
         : "";
 
     if (this.userConfig.serverAddr === "") {
-      console.warn("server addr is not config!");
+      console.warn("loggerForCannotDuplicate: serverAddr is not config!");
     }
 
-    var collection = this.userConfig.collectionName;
-    var request = indexedDB.open(collection, 1);
+    const collection = this.userConfig.collectionName;
+    const request = indexedDB.open(collection, 1);
 
     request.onerror = function (_event) {
       console.error("loggerForCannotDuplicate: indexedDB数据库打开报错");
@@ -85,6 +46,11 @@ function LoggerForCannotDuplicate(config) {
 
     request.onsuccess = function (_event) {
       self.db = request.result;
+      window.LoggerForCannotDuplicate = {};
+      window.LoggerForCannotDuplicate.config = self.userConfig;
+      if (self.userConfig.isDevEnv) {
+        console.info("loggerForCannotDuplicate: ", window.LoggerForCannotDuplicate.config);
+      }
       setTimeout(function () {
         if (!self.runVersionChange) {
           dealPreviousData();
@@ -103,24 +69,42 @@ function LoggerForCannotDuplicate(config) {
       }, 10);
     };
 
+    const loggerTypes = ['debug', 'info', 'warn', 'error', 'show'];
+
+    loggerTypes.forEach(type => {
+      this[type] = (...args) => {
+        const typeUpperCase = type.toUpperCase();
+        if (type === "show") {
+          console.log.apply(null, [`\x1b[32m [${new Date().formatTime("yyyy-MM-dd hh:mm:ss:S")}] [${typeUpperCase}] `, ...args]);
+        } else {
+          if (this.userConfig.isDevEnv) {
+            console[type](`[${new Date().formatTime("yyyy-MM-dd hh:mm:ss:S")}] [${typeUpperCase}] `, ...args);
+          }
+        }
+        if (type !== "debug") {
+          this.add({
+            type: typeUpperCase,
+            value: args
+          });
+        }
+      };
+    });
+
     this.add = function (loggerContent) {
       if (!self.db) {
         self.preQueue.push({
           name: "add",
-          loggerContent: loggerContent,
+          loggerContent,
         });
         return Promise.resolve("pending");
       }
 
       loggerContent = {
-        key:
-          new Date().formatTime("yyyy-MM-dd hh:mm:ss:S") +
-          "-" +
-          Math.random().toString(36).slice(5),
+        key: new Date().formatTime("yyyy-MM-dd hh:mm:ss:S") + "-" + Math.random().toString(36).slice(5),
         content: loggerContent,
       };
       return new Promise(function (resolve) {
-        var request = self.db
+        const request = self.db
           .transaction(["collection"], "readwrite")
           .objectStore("collection")
           .add(loggerContent);
@@ -138,23 +122,18 @@ function LoggerForCannotDuplicate(config) {
 
     this.read = function () {
       if (!self.db) {
-        self.preQueue.push({
-          name: "read",
-        });
-        return Promise.resolve(
-          "pending! please wait indexedDB prepare and then read"
-        );
+        self.preQueue.push({ name: "read" });
+        return Promise.resolve("pending! please wait indexedDB prepare and then read");
       }
 
-      var result = [];
+      const result = [];
       return new Promise(function (resolve) {
-        var objectStore = self.db
+        const objectStore = self.db
           .transaction("collection")
           .objectStore("collection");
 
         objectStore.openCursor().onsuccess = function (event) {
-          var cursor = event.target.result;
-
+          const cursor = event.target.result;
           if (cursor) {
             result.push(cursor.value);
             cursor.continue();
@@ -167,22 +146,20 @@ function LoggerForCannotDuplicate(config) {
 
     this.remove = function () {
       if (!self.db) {
-        self.preQueue.push({
-          name: "remove",
-        });
+        self.preQueue.push({ name: "remove" });
         return Promise.resolve("pending");
       }
 
       return new Promise(function (resolve) {
         self.db.close();
-        var req = indexedDB.deleteDatabase(collection);
+        const req = indexedDB.deleteDatabase(collection);
 
         req.onsuccess = function () {
           resolve("success");
         };
 
         req.onerror = function () {
-          console.log("Couldn't delete database");
+          console.log("loggerForCannotDuplicate: Couldn't delete database");
           resolve("fail");
         };
 
@@ -209,52 +186,36 @@ function LoggerForCannotDuplicate(config) {
       });
     };
   } else {
-    throw new Error(
-      "loggerForCannotDuplicate: config must be an object or empty"
-    );
+    // prevent project init
+    throw new Error("loggerForCannotDuplicate: config must be an object or empty");
   }
 
   function sendFunc(loggerContents, res, objectID) {
-    var obj = {};
-    obj = _defineProperty(
-      {
-        logger: loggerContents,
-      },
-      "logId",
-      objectID
-    );
-    obj = _defineProperty(
-      obj,
-      "dateFromFrontend",
-      new Date().formatTime("yyyy-MM-dd hh:mm:ss:S")
-    );
-    obj = _defineProperty(obj, "version", "v2.0.0");
-    obj = _defineProperty(obj, "page", location.href);
+    const obj = {
+      logger: loggerContents,
+      logId: objectID,
+      dateFromFrontend: new Date().formatTime("yyyy-MM-dd hh:mm:ss:S"),
+      version: "v2.0.4",
+      page: location.href
+    };
 
-    if (
-      window &&
-      window.navigator &&
-      typeof window.navigator.sendBeacon === "function"
-    ) {
-      var formData = new FormData();
+    if (window && window.navigator && typeof window.navigator.sendBeacon === "function") {
+      const formData = new FormData();
       Object.keys(obj).forEach(function (key) {
-        var value = obj[key];
-
+        let value = obj[key];
         if (typeof value !== "undefined") {
-          if (_typeof(value) === "object") {
+          if (typeof value === "object") {
             value = JSON.stringify(value, null, 2);
           }
-
           formData.append(key, value);
         }
       });
       window.navigator.sendBeacon(self.userConfig.serverAddr, formData);
       res("success");
     } else {
-      var xhr = new XMLHttpRequest();
+      const xhr = new XMLHttpRequest();
       xhr.open("POST", self.userConfig.serverAddr, true);
       xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
           res(xhr.responseText);
@@ -262,38 +223,27 @@ function LoggerForCannotDuplicate(config) {
           res("send_fail");
         }
       };
-
       xhr.send(JSON.stringify(obj));
     }
   }
 }
 
 Date.prototype.formatTime = function (fmt) {
-  var o = {
+  const o = {
     "M+": this.getMonth() + 1,
-    //月份
     "d+": this.getDate(),
-    //日
     "h+": this.getHours(),
-    //小时
     "m+": this.getMinutes(),
-    //分
     "s+": this.getSeconds(),
-    //秒
     "q+": Math.floor((this.getMonth() + 3) / 3),
-    //季度
-    S: this.getMilliseconds(), //毫秒
+    S: this.getMilliseconds(),
   };
 
   try {
     if (/(y+)/.test(fmt)) {
-      fmt = fmt.replace(
-        RegExp.$1,
-        String(this.getFullYear()).slice(4 - RegExp.$1.length)
-      );
+      fmt = fmt.replace(RegExp.$1, String(this.getFullYear()).slice(4 - RegExp.$1.length));
     }
-
-    for (var k in o) {
+    for (const k in o) {
       if (new RegExp("(" + k + ")").test(fmt)) {
         fmt = fmt.replace(
           RegExp.$1,
@@ -306,8 +256,7 @@ Date.prototype.formatTime = function (fmt) {
   } catch (err) {
     //
   }
-
   return fmt;
 };
 
-exports.default = LoggerForCannotDuplicate;
+export default LoggerForCannotDuplicate;
