@@ -1,4 +1,4 @@
-function LoggerForCannotDuplicate(config) {
+function Logger(config) {
   if (!config) {
     config = {};
   }
@@ -34,22 +34,22 @@ function LoggerForCannotDuplicate(config) {
         : "";
 
     if (this.userConfig.serverAddr === "") {
-      console.warn("loggerForCannotDuplicate: serverAddr is not config!");
+      console.warn("logger-for-cannot-duplicate: serverAddr is not config!");
     }
 
     const collection = this.userConfig.collectionName;
     const request = indexedDB.open(collection, 1);
 
     request.onerror = function (_event) {
-      console.error("loggerForCannotDuplicate: indexedDB数据库打开报错");
+      console.error("logger-for-cannot-duplicate: indexedDB数据库打开报错");
     };
 
     request.onsuccess = function (_event) {
       self.db = request.result;
-      window.LoggerForCannotDuplicate = {};
-      window.LoggerForCannotDuplicate.config = self.userConfig;
+      window.Logger = {};
+      window.Logger.config = self.userConfig;
       if (self.userConfig.isDevEnv) {
-        console.info("loggerForCannotDuplicate: ", window.LoggerForCannotDuplicate.config);
+        console.info("logger-for-cannot-duplicate: ", window.Logger.config);
       }
       setTimeout(function () {
         if (!self.runVersionChange) {
@@ -115,7 +115,7 @@ function LoggerForCannotDuplicate(config) {
 
         request.onerror = function (event) {
           resolve(event);
-          console.warn("loggerForCannotDuplicate: 数据写入失败");
+          console.warn("logger-for-cannot-duplicate: 数据写入失败");
         };
       });
     };
@@ -159,7 +159,7 @@ function LoggerForCannotDuplicate(config) {
         };
 
         req.onerror = function () {
-          console.log("loggerForCannotDuplicate: Couldn't delete database");
+          console.log("logger-for-cannot-duplicate: Couldn't delete database");
           resolve("fail");
         };
 
@@ -187,7 +187,7 @@ function LoggerForCannotDuplicate(config) {
     };
   } else {
     // prevent project init
-    throw new Error("loggerForCannotDuplicate: config must be an object or empty");
+    throw new Error("logger-for-cannot-duplicate: config must be an object or empty");
   }
 
   function sendFunc(loggerContents, res, objectID) {
@@ -259,4 +259,14 @@ Date.prototype.formatTime = function (fmt) {
   return fmt;
 };
 
-export default LoggerForCannotDuplicate;
+// export default Logger;
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Logger;
+} else {
+  Logger._prevLogger = this.Logger;
+  Logger.noConflict = function () {
+    this.Logger = Logger._prevLogger;
+    return Logger;
+  };
+  this.Logger = Logger;
+}
