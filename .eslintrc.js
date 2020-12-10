@@ -13,12 +13,7 @@ module.exports = {
 		},
 	},
 	rules: {
-		"no-mixed-spaces-and-tabs": 0,  //禁止使用 空格 和 tab 混合缩进
-		"vars-on-top": 0, //要求将变量声明放在它们作用域的顶部
-		"no-var": 0, //要求使用 let 或 const 而不是 var
-		"object-shorthand": 0, //要求对象字面量简写语法
-    'max-len': 0,
-    'no-void': 0
+
 	},
 	env: {
 		browser: true,
