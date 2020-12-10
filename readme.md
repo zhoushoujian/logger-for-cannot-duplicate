@@ -1,4 +1,6 @@
-# LoggerForCannotDuplicate
+# logger-for-cannot-duplicate
+
+[中文](https://github.com/zhoushoujian/logger-for-cannot-duplicate/blob/master/readme_zh.md)
 
 A light logger system for browser.
 
@@ -7,11 +9,11 @@ A light logger system for browser.
 `zero dependence`
 
 Log useful info to indexedDB to send to server for analysis
-default to use navigator.sendBeacon to upload and not support to fail back to xhr
+Default to use navigator.sendBeacon to upload and not support to fail back to xhr
 
 ## Usage
 
-```open test.html to experience```
+```Open test.html to experience```
 
 ```js
 import Logger from "logger-for-cannot-duplicate";
@@ -27,7 +29,7 @@ const logger = new Logger({
 });
 
 //Due to initialize indexedDB is async, so if read or remove or add will return a result named pending
-//it's better to instance Logger first and then to use.
+//it's better to instance Logger first and then to use. e.g. init Logger when project launch
 //debug level not log to indexedDB
 logger.debug("this is debug info");
 logger.info("this is info info");
@@ -38,7 +40,9 @@ logger.show("this is show level info");
 //add one log to indexedDB
 logger.add("123456");
 logger.add(true);
-//read logs in indexDB collection， init indexedDb require some time, please wait indexedDB prepare and then call logger method
+//read logs in indexDB collection， init indexedDB require some time, 
+//please wait indexedDB prepare and then call logger method
+//other method will save actions to queue and execute util indexedDB init success
 logger.read().then((result) => {
   console.log("result", result);
   //remove that indexDB collection
@@ -53,31 +57,31 @@ logger.read().then((result) => {
 There are nine apis at present and are easy to use.
 
 `debug:`  
-only print info on console when isDevEnv is true, `not save` to indexedDB
+Only print info on console when isDevEnv is true, `not save` to indexedDB
 
 `info:`  
-standard logger print when isDevEnv is true, print info on console and save in indexedDB
+Standard logger print when isDevEnv is true, print info on console and save in indexedDB
 
 `warn:`  
-print warn info on console when isDevEnv is true and save in indexedDB
+Print warn info on console when isDevEnv is true and save in indexedDB
 
 `error:`  
-print error info on console when isDevEnv is true and save in indexedDB
+Print error info on console when isDevEnv is true and save in indexedDB
 
 `show:`  
-only print info on console `even if isDevEnv is false`, and save to indexedDB
+Print info on console `even if isDevEnv is false`, and save to indexedDB
 
 `add:`  
-add one log info to indexedDB to save
+Add one log info to indexedDB to save
 
 `read:`  
-read log infos from that indexedDB
+Read log infos from that indexedDB
 
 `remove:`  
-remove that indexedDB database
+Remove that indexedDB database
 
 `send:`  
-send your log infos to your server
+Send log infos to your server
 
 ## License
 
