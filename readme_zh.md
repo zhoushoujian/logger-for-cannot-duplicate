@@ -70,6 +70,9 @@ There are nine apis at present and are easy to use.
 `show:`
 即使isDevEnv为false，依然会打印到控制台，并且存储到indexedDB
 
+`log:`  
+打印log级别的日志到控制台当isDevEnv为true的时候，并且存储到indexedDB
+
 `add:`  
 添加一条日志信息到indexedDB
 add one log info to indexedDB to save

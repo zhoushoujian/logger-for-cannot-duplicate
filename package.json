@@ -1,7 +1,7 @@
 {
   "name": "logger-for-cannot-duplicate",
   "description": "A light logger system for browser for the case which can not duplicate but sometimes happened.",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "license": "MIT",
   "author": "shoujian",
   "main": "index.js",
@@ -23,10 +23,10 @@
     "shelljs": "^0.8.4"
   },
   "homepage": "https://github.com/zhoushoujian/logger-for-cannot-duplicate",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/zhoushoujian/logger-for-cannot-duplicate"
-	},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zhoushoujian/logger-for-cannot-duplicate"
+  },
   "keywords": [
     "logger",
     "browser",

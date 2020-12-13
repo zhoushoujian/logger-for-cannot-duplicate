@@ -71,6 +71,9 @@ Print error info on console when isDevEnv is true and save in indexedDB
 `show:`  
 Print info on console `even if isDevEnv is false`, and save to indexedDB
 
+`log:`  
+Print log info on console when isDevEnv is true and save in indexedDB
+
 `add:`  
 Add one log info to indexedDB to save
 

@@ -69,7 +69,7 @@ function Logger(config) {
       }, 10);
     };
 
-    const loggerTypes = ['debug', 'info', 'warn', 'error', 'show'];
+    const loggerTypes = ['debug', 'info', 'warn', 'error', 'show', 'log'];
 
     loggerTypes.forEach(type => {
       this[type] = (...args) => {
