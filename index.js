@@ -1,3 +1,5 @@
+const packageJson = require('./package.json');
+
 function Logger(config) {
   if (!config) {
     config = {};
@@ -71,26 +73,47 @@ function Logger(config) {
 
     const loggerTypes = ['debug', 'info', 'warn', 'error', 'show', 'log'];
 
-    loggerTypes.forEach(type => {
-      this[type] = (...args) => {
-        const typeUpperCase = type.toUpperCase();
-        if (type === "show") {
-          console.log.apply(null, [`\x1b[32m [${new Date().formatTime("yyyy-MM-dd hh:mm:ss:S")}] [${typeUpperCase}] `, ...args]);
+    loggerTypes.forEach(level => {
+      this[level] = (...args) => {
+        const levelUpperCase = level.toUpperCase();
+        if (level === "show") {
+          console.log.apply(null, [`\x1b[32m [${getTime()}] [${levelUpperCase}] `, ...args]);
         } else {
           if (this.userConfig.isDevEnv) {
-            console[type](`[${new Date().formatTime("yyyy-MM-dd hh:mm:ss:S")}] [${typeUpperCase}] `, ...args);
+            console[level](`[${getTime()}] [${levelUpperCase}] `, ...args);
           }
         }
-        if (type !== "debug") {
+        if (level !== "debug") {
           this.add({
-            type: typeUpperCase,
-            value: args
+            level: levelUpperCase,
+            content: args
           });
         }
       };
     });
 
+    this.showData = function () {
+      return this.read()
+        .then((result) => console.log('collection:', this.userConfig.collectionName, result));
+    };
+
     this.add = function (loggerContent) {
+      const key = getTime() + "-" + Math.random().toString(36).slice(5);
+      if (Object.prototype.toString.call(loggerContent) === '[object Object]') {
+        loggerContent.key = key;
+      } else {
+        loggerContent = {
+          content: loggerContent || Object.prototype.toString.call(loggerContent),
+          key
+        };
+      }
+      try {
+        loggerContent = JSON.parse(JSON.stringify(loggerContent));
+      } catch (err) {
+        loggerContent = {
+          err: JSON.stringify({})
+        };
+      }
       if (!self.db) {
         self.preQueue.push({
           name: "add",
@@ -98,11 +121,6 @@ function Logger(config) {
         });
         return Promise.resolve("pending");
       }
-
-      loggerContent = {
-        key: new Date().formatTime("yyyy-MM-dd hh:mm:ss:S") + "-" + Math.random().toString(36).slice(5),
-        content: loggerContent,
-      };
       return new Promise(function (resolve) {
         const request = self.db
           .transaction(["collection"], "readwrite")
@@ -194,8 +212,8 @@ function Logger(config) {
     const obj = {
       logger: loggerContents,
       logId: objectID,
-      dateFromFrontend: new Date().formatTime("yyyy-MM-dd hh:mm:ss:S"),
-      version: "v2.0.4",
+      dateFromFrontend: getTime(),
+      version: packageJson.version,
       page: location.href
     };
 
@@ -228,36 +246,32 @@ function Logger(config) {
   }
 }
 
-Date.prototype.formatTime = function (fmt) {
-  const o = {
-    "M+": this.getMonth() + 1,
-    "d+": this.getDate(),
-    "h+": this.getHours(),
-    "m+": this.getMinutes(),
-    "s+": this.getSeconds(),
-    "q+": Math.floor((this.getMonth() + 3) / 3),
-    S: this.getMilliseconds(),
-  };
-
-  try {
-    if (/(y+)/.test(fmt)) {
-      fmt = fmt.replace(RegExp.$1, String(this.getFullYear()).slice(4 - RegExp.$1.length));
-    }
-    for (const k in o) {
-      if (new RegExp("(" + k + ")").test(fmt)) {
-        fmt = fmt.replace(
-          RegExp.$1,
-          RegExp.$1.length === 1
-            ? o[k]
-            : ("00" + o[k]).substr(("" + o[k]).length)
-        );
-      }
-    }
-  } catch (err) {
-    //
+function getTime() {
+  const year = new Date().getFullYear();
+  const month = new Date().getMonth() + 1;
+  const day = new Date().getDate();
+  let hour = new Date().getHours();
+  let minute = new Date().getMinutes();
+  let second = new Date().getSeconds();
+  let mileSecond = new Date().getMilliseconds();
+  if (hour < 10) {
+    hour = "0" + hour;
   }
-  return fmt;
-};
+  if (minute < 10) {
+    minute = "0" + minute;
+  }
+  if (second < 10) {
+    second = "0" + second;
+  }
+  if (mileSecond < 10) {
+    mileSecond = "00" + mileSecond;
+  }
+  if (mileSecond < 100) {
+    mileSecond = "0" + mileSecond;
+  }
+  const time = `${year}-${month}-${day} ${hour}:${minute}:${second}.${mileSecond}`;
+  return time;
+}
 
 // export default Logger;
 if (typeof module !== 'undefined' && module.exports) {

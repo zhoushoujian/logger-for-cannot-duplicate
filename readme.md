@@ -1,6 +1,6 @@
 # logger-for-cannot-duplicate
 
-[中文](https://github.com/zhoushoujian/logger-for-cannot-duplicate/blob/master/readme_zh.md)
+[ENGLISH] | [中文](./readme_zh.md)
 
 A light logger system for browser.
 
@@ -20,7 +20,7 @@ import Logger from "logger-for-cannot-duplicate";
 
 //support more one instances
 const logger = new Logger({
-  //if isDevEnv is true, it will print console
+  //if isDevEnv is true, it will print console, including logger-for-cannot-duplicate config
   isDevEnv: true,
   //indexedDB to put log info
   collectionName: "foo",
@@ -40,6 +40,7 @@ logger.show("this is show level info");
 //add one log to indexedDB
 logger.add("123456");
 logger.add(true);
+logger.showData()
 //read logs in indexDB collection， init indexedDB require some time, 
 //please wait indexedDB prepare and then call logger method
 //other method will save actions to queue and execute util indexedDB init success
@@ -71,6 +72,9 @@ Print error info on console when isDevEnv is true and save in indexedDB
 `show:`  
 Print info on console `even if isDevEnv is false`, and save to indexedDB
 
+`showData:`  
+show all data in specify indexedDB collection
+
 `log:`  
 Print log info on console when isDevEnv is true and save in indexedDB
 
@@ -86,6 +90,10 @@ Remove that indexedDB database
 `send:`  
 Send log infos to your server
 
+## CHANGELOG
+
+[CHANGELOG](./CHANGELOG.md)
+
 ## License
 
-[MIT](https://github.com/zhoushoujian/logger-for-cannot-duplicate/blob/master/LICENSE)
+[MIT](./LICENSE)

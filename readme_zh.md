@@ -1,5 +1,7 @@
 # logger-for-cannot-duplicate
 
+[中文] | [ENGLISH](./readme.md)
+
 一款轻量级的前端日志系统
 
 ## 功能
@@ -18,7 +20,7 @@ import Logger from "logger-for-cannot-duplicate";
 
 //支持多实例
 const logger = new Logger({
-  //加入isDevEnv为true，日志将会打印到浏览器控制台
+  //加入isDevEnv为true，日志将会打印到浏览器控制台，包括logger-for-cannot-duplicate的配置
   isDevEnv: true,
   //用于存放日志的indexDB集合名称
   collectionName: "foo",
@@ -38,6 +40,7 @@ logger.show("this is show level info");
 //添加一条日志到indexedDB
 logger.add("123456");
 logger.add(true);
+logger.showData()
 //读取indexedDB集合里的所有日志，初始化indexedDB需要一些时间，所以请等待indexedDB准备好再调用读取操作，
 //其他方法会存到Logger队列里，直到Logger初始化完成后从队列里读取
 logger.read().then((result) => {
@@ -69,6 +72,9 @@ There are nine apis at present and are easy to use.
 
 `show:`
 即使isDevEnv为false，依然会打印到控制台，并且存储到indexedDB
+
+`showData:`  
+显示在指定集合里的所有数据
 
 `log:`  
 打印log级别的日志到控制台当isDevEnv为true的时候，并且存储到indexedDB
