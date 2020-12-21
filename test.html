@@ -19,6 +19,7 @@
       //your server to receive log infos
       serverAddr: "put your log server addr here",
     });
+    window.logger = logger
 
     //Due to initialize indexedDB is async, so if read or remove or add will return a result named pending
     //it's better to instance Logger first and then to use.
@@ -39,7 +40,7 @@
       return logger.read().then((result) => {
         console.log("result", result);
         //remove that indexDB collection
-        logger.remove();
+        // logger.remove();
         //send log infos to server, also can call send without read
         // logger.send(result, "myLogId");
       });

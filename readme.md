@@ -21,11 +21,11 @@ import Logger from "logger-for-cannot-duplicate";
 //support more one instances
 const logger = new Logger({
   //if isDevEnv is true, it will print console, including logger-for-cannot-duplicate config
-  isDevEnv: true,
+  isDevEnv: true,   // default value: false
   //indexedDB to put log info
-  collectionName: "foo",
+  collectionName: "foo", // default value: logger-for-cannot-duplicate
   //your server to receive log infos
-  serverAddr: "put your log server addr here",
+  serverAddr: "put your log server addr here",  //// default value: ""
 });
 
 //Due to initialize indexedDB is async, so if read or remove or add will return a result named pending

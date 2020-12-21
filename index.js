@@ -29,7 +29,7 @@ function Logger(config) {
     this.userConfig.collectionName =
       typeof this.userConfig.collectionName === "string"
         ? this.userConfig.collectionName
-        : "default";
+        : "logger-for-cannot-duplicate";
     this.userConfig.serverAddr =
       typeof this.userConfig.serverAddr === "string"
         ? this.userConfig.serverAddr
@@ -48,10 +48,10 @@ function Logger(config) {
 
     request.onsuccess = function (_event) {
       self.db = request.result;
-      window.Logger = {};
-      window.Logger.config = self.userConfig;
+      self.Logger = {};
+      self.Logger.config = self.userConfig;
       if (self.userConfig.isDevEnv) {
-        console.info("logger-for-cannot-duplicate: ", window.Logger.config);
+        console.info("logger-for-cannot-duplicate: ", self.Logger.config);
       }
       setTimeout(function () {
         if (!self.runVersionChange) {
@@ -73,18 +73,19 @@ function Logger(config) {
 
     const loggerTypes = ['debug', 'info', 'warn', 'error', 'show', 'log'];
 
-    loggerTypes.forEach(level => {
-      this[level] = (...args) => {
+    loggerTypes.forEach(function(level) {
+      self[level] = function () {
+        const args = Array.prototype.slice.call(arguments);
         const levelUpperCase = level.toUpperCase();
         if (level === "show") {
-          console.log.apply(null, [`\x1b[32m [${getTime()}] [${levelUpperCase}] `, ...args]);
+          console.log.apply(null, ["\x1b[32m [" + getTime() + "] " + levelUpperCase].concat(args));
         } else {
-          if (this.userConfig.isDevEnv) {
-            console[level](`[${getTime()}] [${levelUpperCase}] `, ...args);
+          if (self.userConfig.isDevEnv) {
+            console[level].apply(null, ["[" + getTime() + "] " + "[" + levelUpperCase + "]"].concat(args));
           }
         }
         if (level !== "debug") {
-          this.add({
+          self.add({
             level: levelUpperCase,
             content: args
           });
@@ -94,7 +95,9 @@ function Logger(config) {
 
     this.showData = function () {
       return this.read()
-        .then((result) => console.log('collection:', this.userConfig.collectionName, result));
+        .then(function(result) {
+          console.log('collection:', self.userConfig.collectionName, result);
+        });
     };
 
     this.add = function (loggerContent) {
@@ -104,7 +107,7 @@ function Logger(config) {
       } else {
         loggerContent = {
           content: loggerContent || Object.prototype.toString.call(loggerContent),
-          key
+          key: key
         };
       }
       try {
@@ -117,7 +120,7 @@ function Logger(config) {
       if (!self.db) {
         self.preQueue.push({
           name: "add",
-          loggerContent,
+          loggerContent: loggerContent,
         });
         return Promise.resolve("pending");
       }
@@ -220,7 +223,7 @@ function Logger(config) {
     if (window && window.navigator && typeof window.navigator.sendBeacon === "function") {
       const formData = new FormData();
       Object.keys(obj).forEach(function (key) {
-        let value = obj[key];
+        var value = obj[key];
         if (typeof value !== "undefined") {
           if (typeof value === "object") {
             value = JSON.stringify(value, null, 2);
@@ -250,10 +253,10 @@ function getTime() {
   const year = new Date().getFullYear();
   const month = new Date().getMonth() + 1;
   const day = new Date().getDate();
-  let hour = new Date().getHours();
-  let minute = new Date().getMinutes();
-  let second = new Date().getSeconds();
-  let mileSecond = new Date().getMilliseconds();
+  var hour = new Date().getHours();
+  var minute = new Date().getMinutes();
+  var second = new Date().getSeconds();
+  var mileSecond = new Date().getMilliseconds();
   if (hour < 10) {
     hour = "0" + hour;
   }
@@ -269,7 +272,7 @@ function getTime() {
   if (mileSecond < 100) {
     mileSecond = "0" + mileSecond;
   }
-  const time = `${year}-${month}-${day} ${hour}:${minute}:${second}.${mileSecond}`;
+  const time = year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second + "." + mileSecond;
   return time;
 }
 

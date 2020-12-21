@@ -21,11 +21,11 @@ import Logger from "logger-for-cannot-duplicate";
 //支持多实例
 const logger = new Logger({
   //加入isDevEnv为true，日志将会打印到浏览器控制台，包括logger-for-cannot-duplicate的配置
-  isDevEnv: true,
+  isDevEnv: true,  //默认值: false
   //用于存放日志的indexDB集合名称
-  collectionName: "foo",
+  collectionName: "foo",  //默认值："logger-for-cannot-duplicate"
   //用于接收日志的服务器地址
-  serverAddr: "put your log server addr here",
+  serverAddr: "put your log server addr here",  // //默认值：""
 });
 
 //由于初始化indexedDB是异步操作，所以读取、移除或添加操作都会返回一个叫pending的结果，除非indexedDB已经初始化成功

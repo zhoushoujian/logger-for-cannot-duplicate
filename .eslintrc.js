@@ -13,7 +13,10 @@ module.exports = {
 		},
 	},
 	rules: {
-
+    "object-shorthand": 0,
+    "no-var": 0,
+    "prefer-rest-params": 0,
+    "no-useless-concat": 0
 	},
 	env: {
 		browser: true,
