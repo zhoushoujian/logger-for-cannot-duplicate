@@ -78,7 +78,7 @@ function Logger(config) {
         const args = Array.prototype.slice.call(arguments);
         const levelUpperCase = level.toUpperCase();
         if (level === "show") {
-          console.log.apply(null, ["\x1b[32m [" + getTime() + "] " + levelUpperCase].concat(args));
+          console.log.apply(null, ["\x1b[32m [" + getTime() + "]"].concat(args));
         } else {
           if (self.userConfig.isDevEnv) {
             console[level].apply(null, ["[" + getTime() + "] " + "[" + levelUpperCase + "]"].concat(args));
