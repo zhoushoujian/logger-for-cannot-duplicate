@@ -1,6 +1,12 @@
+const BeautyLogger = require("beauty-logger");
 const packageJson = require('./package.json');
 
 function Logger(config) {
+
+  var logger = null;
+  const specialLogLevel = ["", "-warn", "-error"];
+  const loggerTypes = ['debug', 'info', 'warn', 'error', 'show', 'log'];
+
   if (!config) {
     config = {};
   }
@@ -34,46 +40,62 @@ function Logger(config) {
       typeof this.userConfig.serverAddr === "string"
         ? this.userConfig.serverAddr
         : "";
+    this.userConfig.logFilePath = this.userConfig.logFilePath || "";
 
     if (this.userConfig.serverAddr === "") {
       console.warn("logger-for-cannot-duplicate: serverAddr is not config!");
     }
 
     const collection = this.userConfig.collectionName;
-    const request = indexedDB.open(collection, 1);
+    specialLogLevel.forEach(function (item) {
+      const request = indexedDB.open(collection + item, 1);
 
-    request.onerror = function (_event) {
-      console.error("logger-for-cannot-duplicate: indexedDB数据库打开报错");
-    };
+      request.onerror = function (_event) {
+        console.error("logger-for-cannot-duplicate: indexedDB数据库打开报错");
+      };
 
-    request.onsuccess = function (_event) {
-      self.db = request.result;
-      self.Logger = {};
-      self.Logger.config = self.userConfig;
-      if (self.userConfig.isDevEnv) {
-        console.info("logger-for-cannot-duplicate: ", self.Logger.config);
-      }
-      setTimeout(function () {
-        if (!self.runVersionChange) {
-          dealPreviousData();
+      request.onsuccess = function (_event) {
+        if (item === "") {
+          self.Logger = {};
+          self.Logger.config = self.userConfig;
+          if (self.userConfig.isDevEnv) {
+            console.info("logger-for-cannot-duplicate: ", self.Logger.config);
+          }
+          setTimeout(function () {
+            if (!self.runVersionChange) {
+              dealPreviousData();
+            }
+          }, 50);
         }
-      }, 50);
-    };
+        self['db' + item] = request.result;
+      };
 
-    request.onupgradeneeded = function (event) {
-      self.runVersionChange = true;
-      self.db = event.target.result;
-      self.db.createObjectStore("collection", {
-        keyPath: "key",
+      request.onupgradeneeded = function (event) {
+        if (item === "") {
+          self.runVersionChange = true;
+          setTimeout(function () {
+            dealPreviousData();
+          }, 10);
+        }
+        self['db' + item] = event.target.result;
+        self['db' + item].createObjectStore("collection", {
+          keyPath: "key",
+        });
+      };
+    });
+
+    if (this.userConfig.logFilePath) {
+      logger = new BeautyLogger({
+        logFileSize: this.userConfig.logFileSize || 1024 * 1024 * 100,
+        logFilePath: this.userConfig.logFilePath,
+        dataTypeWarn: false,
+        productionModel: false,
+        onlyPrintInConsole: false,
+        enableMultipleLogFile: false,
       });
-      setTimeout(function () {
-        dealPreviousData();
-      }, 10);
-    };
+    }
 
-    const loggerTypes = ['debug', 'info', 'warn', 'error', 'show', 'log'];
-
-    loggerTypes.forEach(function(level) {
+    loggerTypes.forEach(function (level) {
       self[level] = function () {
         const args = Array.prototype.slice.call(arguments);
         const levelUpperCase = level.toUpperCase();
@@ -95,12 +117,13 @@ function Logger(config) {
 
     this.showData = function () {
       return this.read()
-        .then(function(result) {
+        .then(function (result) {
           console.log('collection:', self.userConfig.collectionName, result);
         });
     };
 
     this.add = function (loggerContent) {
+      var logLevel = loggerContent.level || "INFO";
       const key = getTime() + "-" + Math.random().toString(36).slice(5);
       if (Object.prototype.toString.call(loggerContent) === '[object Object]') {
         loggerContent.key = key;
@@ -117,6 +140,12 @@ function Logger(config) {
           err: JSON.stringify({})
         };
       }
+      if (typeof process !== 'undefined' && this.userConfig.logFilePath) {
+        if (logLevel === 'SHOW') {
+          logLevel = 'INFO';
+        }
+        logger[logLevel.toLowerCase()](loggerContent);
+      }
       if (!self.db) {
         self.preQueue.push({
           name: "add",
@@ -125,7 +154,15 @@ function Logger(config) {
         return Promise.resolve("pending");
       }
       return new Promise(function (resolve) {
-        const request = self.db
+        var execDb = null;
+        if (loggerContent.level === "WARN") {
+          execDb = self['db-warn'];
+        } else if (loggerContent.level === "ERROR") {
+          execDb = self['db-error'];
+        } else {
+          execDb = self.db;
+        }
+        const request = execDb
           .transaction(["collection"], "readwrite")
           .objectStore("collection")
           .add(loggerContent);
@@ -147,21 +184,29 @@ function Logger(config) {
         return Promise.resolve("pending! please wait indexedDB prepare and then read");
       }
 
-      const result = [];
-      return new Promise(function (resolve) {
-        const objectStore = self.db
-          .transaction("collection")
-          .objectStore("collection");
+      const result = {
+        warn: [],
+        error: [],
+        common: []
+      };
+      return Promise.all(specialLogLevel.map(function (item) {
+        return new Promise(function (resolve) {
+          const objectStore = self['db' + item]
+            .transaction("collection")
+            .objectStore("collection");
 
-        objectStore.openCursor().onsuccess = function (event) {
-          const cursor = event.target.result;
-          if (cursor) {
-            result.push(cursor.value);
-            cursor.continue();
-          } else {
-            resolve(result);
-          }
-        };
+          objectStore.openCursor().onsuccess = function (event) {
+            const cursor = event.target.result;
+            if (cursor) {
+              result[item.replace("-", "") || "common"].push(cursor.value);
+              cursor.continue();
+            } else {
+              resolve();
+            }
+          };
+        });
+      })).then(function () {
+        return result;
       });
     };
 

@@ -25,7 +25,11 @@ const logger = new Logger({
   //indexedDB to put log info
   collectionName: "foo", // default value: logger-for-cannot-duplicate
   //your server to receive log infos
-  serverAddr: "put your log server addr here",  //// default value: ""
+  serverAddr: "put your log server addr here",  // default value: "",
+  //write log info to local file if you use electron and specify log path
+  logFilePath: "", // default value: ""
+  //the slicing of per log file
+  logFileSize: 100 * 1024 * 1024, //default value: 100 * 1024 * 1024,
 });
 
 //Due to initialize indexedDB is async, so if read or remove or add will return a result named pending
