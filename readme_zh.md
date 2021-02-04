@@ -50,7 +50,9 @@ logger.showData()
 logger.read().then((result) => {
   console.log("result", result);
   //移除Logger所在的集合
-  logger.remove();
+  // logger.remove();
+  //仅仅清除数据库集合里的数据
+  logger.clearData()
   //send log infos to server, also can call send without read
   //发送日志信息到服务器，你也可以不用先读取，直接调用send方法
   logger.send(result, "myLogId");
@@ -92,6 +94,9 @@ add one log info to indexedDB to save
 
 `remove:`  
 移除指定的集合
+
+`clearData:`
+清除指定数据库集合里的数据
 
 `send:`  
 发送日志到你的服务器

@@ -41,6 +41,10 @@
         console.log("result", result);
         //remove that indexDB collection
         // logger.remove();
+        //only clear indexedDB data
+        logger.clearData()
+        logger.add(123)
+        logger.showData()
         //send log infos to server, also can call send without read
         // logger.send(result, "myLogId");
       });

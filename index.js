@@ -85,6 +85,7 @@ function Logger(config) {
     });
 
     if (this.userConfig.logFilePath) {
+      //打印日志到本地，用于electron等场景
       logger = new BeautyLogger({
         logFileSize: this.userConfig.logFileSize || 1024 * 1024 * 100,
         logFilePath: this.userConfig.logFilePath,
@@ -107,10 +108,12 @@ function Logger(config) {
           }
         }
         if (level !== "debug") {
-          self.add({
+          return self.add({
             level: levelUpperCase,
             content: args
           });
+        } else {
+          return Promise.resolve();
         }
       };
     });
@@ -119,6 +122,7 @@ function Logger(config) {
       return this.read()
         .then(function (result) {
           console.log('collection:', self.userConfig.collectionName, result);
+          return [self.userConfig.collectionName, result];
         });
     };
 
@@ -137,7 +141,7 @@ function Logger(config) {
         loggerContent = JSON.parse(JSON.stringify(loggerContent));
       } catch (err) {
         loggerContent = {
-          err: JSON.stringify({})
+          err: JSON.stringify({ err: `logger-for-cannot-duplicate: loggerContent序列化错误` })
         };
       }
       if (typeof process !== 'undefined' && this.userConfig.logFilePath) {
@@ -236,6 +240,14 @@ function Logger(config) {
       });
     };
 
+    this.clearData = function () {
+      specialLogLevel.forEach(item => {
+        const store = self['db' + item].transaction('collection', 'readwrite').objectStore('collection');
+        store.clear();
+      });
+      return Promise.resolve();
+    };
+
     this.send = function (loggerContents, objectID) {
       if (!objectID) {
         return Promise.reject(new Error("objectID is required"));
@@ -244,7 +256,7 @@ function Logger(config) {
       return new Promise(function (res) {
         if (!loggerContents) {
           return self.read().then(function (contents) {
-            sendFunc(contents, res, objectID);
+            return sendFunc(contents, res, objectID);
           });
         } else {
           return sendFunc(loggerContents, res, objectID);

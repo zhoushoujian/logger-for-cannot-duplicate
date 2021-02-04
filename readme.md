@@ -51,7 +51,9 @@ logger.showData()
 logger.read().then((result) => {
   console.log("result", result);
   //remove that indexDB collection
-  logger.remove();
+  // logger.remove();
+  //only clear indexedDB data
+  logger.clearData()
   //send log infos to server, also can call send without read
   logger.send(result, "myLogId");
 });
@@ -86,10 +88,13 @@ Print log info on console when isDevEnv is true and save in indexedDB
 Add one log info to indexedDB to save
 
 `read:`  
-Read log infos from that indexedDB
+Read log infos from specify indexedDB
 
 `remove:`  
-Remove that indexedDB database
+Remove specify indexedDB database
+
+`clearData:`
+clear specify indexedDB database data
 
 `send:`  
 Send log infos to your server
