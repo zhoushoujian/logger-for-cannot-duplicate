@@ -1,11 +1,9 @@
-const BeautyLogger = require("beauty-logger");
-const packageJson = require('./package.json');
+const packageJson = require("./package.json");
 
 function Logger(config) {
-
   var logger = null;
   const specialLogLevel = ["", "-warn", "-error"];
-  const loggerTypes = ['debug', 'info', 'warn', 'error', 'show', 'log'];
+  const loggerTypes = ["debug", "info", "warn", "error", "show", "log"];
 
   if (!config) {
     config = {};
@@ -67,7 +65,7 @@ function Logger(config) {
             }
           }, 50);
         }
-        self['db' + item] = request.result;
+        self["db" + item] = request.result;
       };
 
       request.onupgradeneeded = function (event) {
@@ -77,8 +75,8 @@ function Logger(config) {
             dealPreviousData();
           }, 10);
         }
-        self['db' + item] = event.target.result;
-        self['db' + item].createObjectStore("collection", {
+        self["db" + item] = event.target.result;
+        self["db" + item].createObjectStore("collection", {
           keyPath: "key",
         });
       };
@@ -86,14 +84,16 @@ function Logger(config) {
 
     if (this.userConfig.logFilePath) {
       //打印日志到本地，用于electron等场景
-      logger = new BeautyLogger({
-        logFileSize: this.userConfig.logFileSize || 1024 * 1024 * 100,
-        logFilePath: this.userConfig.logFilePath,
-        dataTypeWarn: false,
-        productionModel: false,
-        onlyPrintInConsole: false,
-        enableMultipleLogFile: false,
-      });
+      // eslint-disable-next-line global-require
+      // const BeautyLogger = require("beauty-logger");
+      // logger = new BeautyLogger({
+      //   logFileSize: this.userConfig.logFileSize || 1024 * 1024 * 100,
+      //   logFilePath: this.userConfig.logFilePath,
+      //   dataTypeWarn: false,
+      //   productionModel: false,
+      //   onlyPrintInConsole: false,
+      //   enableMultipleLogFile: false,
+      // });
     }
 
     loggerTypes.forEach(function (level) {
@@ -101,16 +101,22 @@ function Logger(config) {
         const args = Array.prototype.slice.call(arguments);
         const levelUpperCase = level.toUpperCase();
         if (level === "show") {
-          console.log.apply(null, ["\x1b[32m [" + getTime() + "]"].concat(args));
+          console.log.apply(
+            null,
+            ["\x1b[32m [" + getTime() + "]"].concat(args)
+          );
         } else {
           if (self.userConfig.isDevEnv) {
-            console[level].apply(null, ["[" + getTime() + "] " + "[" + levelUpperCase + "]"].concat(args));
+            console[level].apply(
+              null,
+              ["[" + getTime() + "] " + "[" + levelUpperCase + "]"].concat(args)
+            );
           }
         }
         if (level !== "debug") {
           return self.add({
             level: levelUpperCase,
-            content: args
+            content: args,
           });
         } else {
           return Promise.resolve();
@@ -119,34 +125,36 @@ function Logger(config) {
     });
 
     this.showData = function () {
-      return this.read()
-        .then(function (result) {
-          console.log('collection:', self.userConfig.collectionName, result);
-          return [self.userConfig.collectionName, result];
-        });
+      return this.read().then(function (result) {
+        console.log("collection:", self.userConfig.collectionName, result);
+        return [self.userConfig.collectionName, result];
+      });
     };
 
     this.add = function (loggerContent) {
       var logLevel = loggerContent.level || "INFO";
       const key = getTime() + "-" + Math.random().toString(36).slice(5);
-      if (Object.prototype.toString.call(loggerContent) === '[object Object]') {
+      if (Object.prototype.toString.call(loggerContent) === "[object Object]") {
         loggerContent.key = key;
       } else {
         loggerContent = {
-          content: loggerContent || Object.prototype.toString.call(loggerContent),
-          key: key
+          content:
+            loggerContent || Object.prototype.toString.call(loggerContent),
+          key: key,
         };
       }
       try {
         loggerContent = JSON.parse(JSON.stringify(loggerContent));
       } catch (err) {
         loggerContent = {
-          err: JSON.stringify({ err: `logger-for-cannot-duplicate: loggerContent序列化错误` })
+          err: JSON.stringify({
+            err: `logger-for-cannot-duplicate: loggerContent序列化错误`,
+          }),
         };
       }
-      if (typeof process !== 'undefined' && this.userConfig.logFilePath) {
-        if (logLevel === 'SHOW') {
-          logLevel = 'INFO';
+      if (typeof process !== "undefined" && this.userConfig.logFilePath) {
+        if (logLevel === "SHOW") {
+          logLevel = "INFO";
         }
         logger[logLevel.toLowerCase()](loggerContent);
       }
@@ -160,9 +168,9 @@ function Logger(config) {
       return new Promise(function (resolve) {
         var execDb = null;
         if (loggerContent.level === "WARN") {
-          execDb = self['db-warn'];
+          execDb = self["db-warn"];
         } else if (loggerContent.level === "ERROR") {
-          execDb = self['db-error'];
+          execDb = self["db-error"];
         } else {
           execDb = self.db;
         }
@@ -185,31 +193,35 @@ function Logger(config) {
     this.read = function () {
       if (!self.db) {
         self.preQueue.push({ name: "read" });
-        return Promise.resolve("pending! please wait indexedDB prepare and then read");
+        return Promise.resolve(
+          "pending! please wait indexedDB prepare and then read"
+        );
       }
 
       const result = {
         warn: [],
         error: [],
-        common: []
+        common: [],
       };
-      return Promise.all(specialLogLevel.map(function (item) {
-        return new Promise(function (resolve) {
-          const objectStore = self['db' + item]
-            .transaction("collection")
-            .objectStore("collection");
+      return Promise.all(
+        specialLogLevel.map(function (item) {
+          return new Promise(function (resolve) {
+            const objectStore = self["db" + item]
+              .transaction("collection")
+              .objectStore("collection");
 
-          objectStore.openCursor().onsuccess = function (event) {
-            const cursor = event.target.result;
-            if (cursor) {
-              result[item.replace("-", "") || "common"].push(cursor.value);
-              cursor.continue();
-            } else {
-              resolve();
-            }
-          };
-        });
-      })).then(function () {
+            objectStore.openCursor().onsuccess = function (event) {
+              const cursor = event.target.result;
+              if (cursor) {
+                result[item.replace("-", "") || "common"].push(cursor.value);
+                cursor.continue();
+              } else {
+                resolve();
+              }
+            };
+          });
+        })
+      ).then(function () {
         return result;
       });
     };
@@ -241,8 +253,10 @@ function Logger(config) {
     };
 
     this.clearData = function () {
-      specialLogLevel.forEach(item => {
-        const store = self['db' + item].transaction('collection', 'readwrite').objectStore('collection');
+      specialLogLevel.forEach((item) => {
+        const store = self["db" + item]
+          .transaction("collection", "readwrite")
+          .objectStore("collection");
         store.clear();
       });
       return Promise.resolve();
@@ -265,7 +279,9 @@ function Logger(config) {
     };
   } else {
     // prevent project init
-    throw new Error("logger-for-cannot-duplicate: config must be an object or empty");
+    throw new Error(
+      "logger-for-cannot-duplicate: config must be an object or empty"
+    );
   }
 
   function sendFunc(loggerContents, res, objectID) {
@@ -274,10 +290,14 @@ function Logger(config) {
       logId: objectID,
       dateFromFrontend: getTime(),
       version: packageJson.version,
-      page: location.href
+      page: location.href,
     };
 
-    if (window && window.navigator && typeof window.navigator.sendBeacon === "function") {
+    if (
+      window &&
+      window.navigator &&
+      typeof window.navigator.sendBeacon === "function"
+    ) {
       const formData = new FormData();
       Object.keys(obj).forEach(function (key) {
         var value = obj[key];
@@ -329,12 +349,25 @@ function getTime() {
   if (mileSecond < 100) {
     mileSecond = "0" + mileSecond;
   }
-  const time = year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second + "." + mileSecond;
+  const time =
+    year +
+    "-" +
+    month +
+    "-" +
+    day +
+    " " +
+    hour +
+    ":" +
+    minute +
+    ":" +
+    second +
+    "." +
+    mileSecond;
   return time;
 }
 
 // export default Logger;
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = Logger;
 } else {
   Logger._prevLogger = this.Logger;

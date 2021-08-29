@@ -1,7 +1,7 @@
 {
   "name": "logger-for-cannot-duplicate",
   "description": "A light logger system for browser for the case which can not duplicate but sometimes happened.",
-  "version": "4.1.1",
+  "version": "4.2.0-beta.1",
   "license": "MIT",
   "author": "shoujian",
   "main": "index.js",
@@ -34,6 +34,6 @@
     "duplicate"
   ],
   "dependencies": {
-    "beauty-logger": "^2.1.1"
+    "beauty-logger": "^4.5.0"
   }
 }
