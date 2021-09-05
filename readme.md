@@ -13,49 +13,53 @@ Default to use navigator.sendBeacon to upload and not support to fail back to xh
 
 ## Usage
 
-```Open test.html to experience```
+`Open test.html to experience`
 
 ```js
-import Logger from "logger-for-cannot-duplicate";
+import Logger from 'logger-for-cannot-duplicate';
 
 //support more one instances
 const logger = new Logger({
-  //if isDevEnv is true, it will print console, including logger-for-cannot-duplicate config
-  isDevEnv: true,   // default value: false
-  //indexedDB to put log info
-  collectionName: "foo", // default value: logger-for-cannot-duplicate
-  //your server to receive log infos
-  serverAddr: "put your log server addr here",  // default value: "",
-  //write log info to local file if you use electron and specify log path
-  logFilePath: "", // default value: ""
-  //the slicing of per log file
-  logFileSize: 100 * 1024 * 1024, //default value: 100 * 1024 * 1024,
+  //if isDevEnv is true, it will print console, including logger-for-cannot-duplicate config， default value: false
+  isDevEnv: true,
+  //indexedDB to put log info， default value: logger-for-cannot-duplicate
+  dbName: 'db',
+  //collection to put log info， default value: collection
+  collectionName: 'collection',
+  //your server to receive log infos, default value: ""
+  serverAddr: 'put your log server addr here',
+  //put package.json info here
+  packageInfo: {},
+  //upload package usage url, default value: 'https://api-track.kylin.shuyun.com/monitor-service/upload-package-info'
+  uploadPackageInfoUrl: '',
+  //enable logger, default value: true
+  enable: true,
 });
 
 //Due to initialize indexedDB is async, so if read or remove or add will return a result named pending
 //it's better to instance Logger first and then to use. e.g. init Logger when project launch
 //debug level not log to indexedDB
-logger.debug("this is debug info");
-logger.info("this is info info");
-logger.warn("this is warn info");
-logger.error("this is error info");
+logger.debug('this is debug info');
+logger.info('this is info info');
+logger.warn('this is warn info');
+logger.error('this is error info');
 //logger.show will print console even if isDevEnv is false or undefined
-logger.show("this is show level info");
+logger.show('this is show level info');
 //add one log to indexedDB
-logger.add("123456");
+logger.add('123456');
 logger.add(true);
-logger.showData()
-//read logs in indexDB collection， init indexedDB require some time, 
+logger.showData();
+//read logs in indexDB collection， init indexedDB require some time,
 //please wait indexedDB prepare and then call logger method
 //other method will save actions to queue and execute util indexedDB init success
-logger.read().then((result) => {
-  console.log("result", result);
+logger.read().then(result => {
+  console.log('result', result);
   //remove that indexDB collection
   // logger.remove();
   //only clear indexedDB data
-  logger.clearData()
+  logger.clearData();
   //send log infos to server, also can call send without read
-  logger.send(result, "myLogId");
+  logger.send(result, 'myLogId');
 });
 ```
 

@@ -1,26 +1,25 @@
+const path = require('path');
+
 module.exports = {
-	extends: ['eslint-config-ts-base'],
-	parser: "babel-eslint",
-	parserOptions: {
-		target:
-			"es5" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'. */,
-		module:
-			"ESNext" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */,
-		ecmaVersion: 6,
-		sourceType: "module",
-		ecmaFeatures: {
-			modules: true,
-		},
-	},
-	rules: {
-    "object-shorthand": 0,
-    "no-var": 0,
-    "prefer-rest-params": 0,
-    "no-useless-concat": 0
-	},
-	env: {
-		browser: true,
-		es6: true
-	},
-	plugins: ["babel"],
+  env: {
+    browser: true,
+    es6: true,
+    node: true,
+  },
+  extends: ['@shuyun-ep-team/eslint-config/base', '@shuyun-ep-team/eslint-config/prettier'],
+  globals: {},
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+    project: './tsconfig.json',
+    createDefaultProgram: true,
+  },
+  rules: {
+    'prefer-rest-params': 0,
+    'global-require': 0,
+    'no-useless-call': 0,
+    'no-console': 0,
+    '@typescript-eslint/no-unused-vars': 0,
+  },
+  plugins: [],
 };

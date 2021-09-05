@@ -22,46 +22,50 @@ npm i logger-for-cannot-duplicate
 `打开test.html体验效果`
 
 ```js
-import Logger from "logger-for-cannot-duplicate";
+import Logger from 'logger-for-cannot-duplicate';
 
 //支持多实例
 const logger = new Logger({
-  //如果isDevEnv为true，日志将会打印到浏览器控制台，包括logger-for-cannot-duplicate的配置
-  isDevEnv: true, //默认值: false
-  //用于存放日志的indexDB集合名称
-  collectionName: "foo", //默认值："logger-for-cannot-duplicate"
-  //用于接收日志的服务器地址
-  serverAddr: "put your log server addr here", // //默认值："",
-  //如果你使用electron并且指定了日志文件路径,将会打印日志到本地文件
-  logFilePath: "", // 默认值：""
-  //每个日志文件的分片大小
-  logFileSize: 100 * 1024 * 1024, //默认值: 100 * 1024 * 1024,
+  //如果isDevEnv为true，日志将会打印到浏览器控制台，包括logger-for-cannot-duplicate的配置，默认值: false
+  isDevEnv: true,
+  //用于存放日志的indexDB数据库名称，默认值："logger-for-cannot-duplicate"
+  dbName: 'db',
+  //用于存放日志的indexDB集合名称，默认值："collection"
+  collectionName: 'collection',
+  //用于接收日志的服务器地址，默认值：""
+  serverAddr: 'put your log server addr here',
+  //手动传入项目的package.json的信息
+  packageInfo: {},
+  //包使用情况上报地址，默认值：'https://api-track.kylin.shuyun.com/monitor-service/upload-package-info'
+  uploadPackageInfoUrl: '',
+  //是否开启, 默认值: true
+  enable: true,
 });
 
 //由于初始化indexedDB是异步操作，所以读取、移除或添加操作都会返回一个叫pending的结果，除非indexedDB已经初始化成功
 //最好是先实例化Logger然后再使用它，例如在项目初始化的时候实例化Logger
 //debug级别的日志不会存储到indexedDB
-logger.debug("this is debug info");
-logger.info("this is info info");
-logger.warn("this is warn info");
-logger.error("this is error info");
+logger.debug('this is debug info');
+logger.info('this is info info');
+logger.warn('this is warn info');
+logger.error('this is error info');
 //即使isDevEnv为false或undefined，logger.show也会打印到控制台
-logger.show("this is show level info");
+logger.show('this is show level info');
 //添加一条日志到indexedDB
-logger.add("123456");
+logger.add('123456');
 logger.add(true);
 logger.showData();
 //读取indexedDB集合里的所有日志，初始化indexedDB需要一些时间，所以请等待indexedDB准备好再调用读取操作，
 //其他方法会存到Logger队列里，直到Logger初始化完成后从队列里读取
-logger.read().then((result) => {
-  console.log("result", result);
+logger.read().then(result => {
+  console.log('result', result);
   //移除Logger所在的集合
   // logger.remove();
   //仅仅清除数据库集合里的数据
   logger.clearData();
   //send log infos to server, also can call send without read
   //发送日志信息到服务器，你也可以不用先读取，直接调用send方法
-  logger.send(result, "myLogId");
+  logger.send(result, 'myLogId');
 });
 ```
 
