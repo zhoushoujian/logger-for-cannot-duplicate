@@ -24,8 +24,6 @@ const logger = new Logger({
   isDevEnv: true,
   //indexedDB to put log info， default value: logger-for-cannot-duplicate
   dbName: 'db',
-  //collection to put log info， default value: collection
-  collectionName: 'collection',
   //your server to receive log infos, default value: ""
   serverAddr: 'put your log server addr here',
   //put package.json info here

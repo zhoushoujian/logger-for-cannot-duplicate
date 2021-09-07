@@ -30,8 +30,6 @@ const logger = new Logger({
   isDevEnv: true,
   //用于存放日志的indexDB数据库名称，默认值："logger-for-cannot-duplicate"
   dbName: 'db',
-  //用于存放日志的indexDB集合名称，默认值："collection"
-  collectionName: 'collection',
   //用于接收日志的服务器地址，默认值：""
   serverAddr: 'put your log server addr here',
   //手动传入项目的package.json的信息
