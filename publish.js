@@ -31,7 +31,7 @@ function executeCmd(cmd, logInfo) {
       if (logInfo === 'changeNpmConfig' && !data.includes('registry.npmjs.org')) {
         useTaobaoMirror = true;
         cancelChangeNpmConfig = () => {
-          shell.exec('npm config set registry=http://registry.npm.taobao.org/');
+          shell.exec('npm set registry http://npm.kylin.shuyun.com/');
           console.log('重新设置淘宝镜像');
         };
       }
