@@ -15,7 +15,7 @@ function changeNpmConfig() {
 
 function publish() {
   console.log('开始发布');
-  return executeCmd('npm publish --registry http://registry.npmjs.org --tag=beta', 'publish');
+  return executeCmd('npm publish --registry http://registry.npmjs.org', 'publish');
 }
 
 function syncTaoBao() {
