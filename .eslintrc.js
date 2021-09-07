@@ -6,7 +6,7 @@ module.exports = {
     es6: true,
     node: true,
   },
-  extends: ['@shuyun-ep-team/eslint-config/lib/base', '@shuyun-ep-team/eslint-config/lib/prettier'],
+  extends: ['@shuyun-ep-team/eslint-config/dist/lib/base', '@shuyun-ep-team/eslint-config/dist/lib/prettier'],
   globals: {},
   parserOptions: {
     ecmaVersion: 2018,
