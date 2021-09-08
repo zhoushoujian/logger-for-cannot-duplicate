@@ -61,7 +61,6 @@ getNpmConfig()
   })
   .then(publish)
   .then(syncTaoBao)
-  .then(() => cancelChangeNpmConfig())
   .then(() => {
     console.log('发布成功');
     process.exit(0);
@@ -69,4 +68,5 @@ getNpmConfig()
   .catch(err => {
     console.error('publish catch err', err);
     process.exit(1);
-  });
+  })
+  .finally(() => cancelChangeNpmConfig());
